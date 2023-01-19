@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome } from '@expo/vector-icons';
+import {AntDesign, FontAwesome} from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,16 +18,30 @@ import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
+import HomeScreen from "../screens/Checkout/HomeScreen";
+import SettingsScreen from "../screens/SettingsScreen";
+import LoginScreen from "../screens/Auth/LoginScreen";
+import AddDetailsScreen from "../screens/Checkout/AddDetailsScreen";
+import MoreOptionsScreen from "../screens/Checkout/MoreOptionsScreen";
+import DeliveryDetailsScreen from "../screens/Checkout/DeliveryDetailsScreen";
+import PaymentScreen from "../screens/Checkout/PaymentScreen";
+import OrderConfirmationScreen from "../screens/Checkout/OrderConfirmationScreen";
+import firebase from "firebase/compat";
+import {useContext, useEffect} from "react";
+import {LoginContext} from "../context/LoginContext";
+import SignupScreen from "../screens/Auth/SignupScreen";
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <RootNavigator />
+      <RootNavigator  />
     </NavigationContainer>
   );
 }
+
+
 
 /**
  * A root stack navigator is often used for displaying modals on top of all other content.
@@ -36,13 +50,37 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
+    const { isLoggedIn, login, logout } = useContext(LoginContext);
+
+
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-      </Stack.Group>
+        {!isLoggedIn &&
+            <>
+                <Stack.Screen
+                    name="Login"
+                    component={LoginScreen}
+                    options={{ title: 'Login' }}
+                />
+                <Stack.Screen name="SignUp" component={SignupScreen} options={{ title: 'SignUp!' }} />
+            </>
+
+        }
+        {isLoggedIn &&
+            <>
+                <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
+                <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+                <Stack.Screen name="AddDetails" component={AddDetailsScreen} options={{ title: 'Add Details' }} />
+                <Stack.Screen name="MoreOptions" component={MoreOptionsScreen} options={{ title: 'More Details' }} />
+                <Stack.Screen name="DeliveryDetails" component={DeliveryDetailsScreen} options={{ title: 'Delivery Details' }} />
+                <Stack.Screen name="Payment" component={PaymentScreen} options={{ title: 'Select Payment' }} />
+                <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ title: 'Order Confirmation' }} />
+                <Stack.Group screenOptions={{ presentation: 'modal' }}>
+                    <Stack.Screen name="Modal" component={ModalScreen} />
+                </Stack.Group>
+            </>
+        }
+
     </Stack.Navigator>
   );
 }
@@ -58,16 +96,16 @@ function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TabOne"
+      initialRouteName="Login"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        name="Home"
+        component={HomeScreen}
+        options={({ navigation }: RootTabScreenProps<'Home'>) => ({
+          title: 'Home',
+          tabBarIcon: ({ color }) => <AntDesign name="home" color={color} size={30}/>,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate('Modal')}
@@ -85,11 +123,11 @@ function BottomTabNavigator() {
         })}
       />
       <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoScreen}
+        name="Settings"
+        component={SettingsScreen}
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Settings',
+          tabBarIcon: ({ color }) => <AntDesign name="setting" color={color} size={30}/>,
         }}
       />
     </BottomTab.Navigator>
