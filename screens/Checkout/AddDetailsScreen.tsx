@@ -2,8 +2,10 @@ import {StyleSheet, FlatList} from 'react-native';
 import { Text, View } from '../../components/Themed';
 import { RootTabScreenProps } from '../../types';
 import {Button, ScrollView} from "native-base";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {ItemCard} from "./components/ItemCard";
+import {LoginContext} from "../../context/LoginContext";
+import {calculateOrderTotal} from "../../utils";
 
 let cartDefaultItems =[
     {
@@ -108,6 +110,7 @@ export default function AddDetailsScreen({ navigation }: RootTabScreenProps<'Add
     const [isNextValid, setIsNextValid] = useState<boolean>(false);
     const [cartTotal, setCartTotal] = useState<number>(0);
     const [toggle, setToggle] = useState<boolean>(false);
+    const {updateOrderItems } = useContext(LoginContext);
 
     useEffect(()=>{
         let results = cartDefaultItems.filter(elm=>elm.numOfItems>0);
@@ -121,11 +124,7 @@ export default function AddDetailsScreen({ navigation }: RootTabScreenProps<'Add
     },[])
 
     useEffect(()=>{
-        let total:number = 0
-        cartDefaultItems.forEach(elm=>{
-            total += elm.pricePerItem*elm.numOfItems
-        })
-        setCartTotal(total)
+        setCartTotal(calculateOrderTotal(cartDefaultItems))
     },[toggle])
 
 
@@ -184,8 +183,9 @@ export default function AddDetailsScreen({ navigation }: RootTabScreenProps<'Add
             </View>
 
             <Button style={{backgroundColor:!isNextValid ? "lightgrey":"#5EBC9D", height:"70%",borderRadius:10}} onPress={()=> {
-                console.log(cartDefaultItems)
+                updateOrderItems({orderItems: cartDefaultItems})
                 navigation.navigate("MoreOptions")
+
             }} disabled={!isNextValid}>
                 <Text style={{color: "#FFF", fontSize:24, fontWeight:"bold"}}>Done</Text>
             </Button>

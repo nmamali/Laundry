@@ -5,7 +5,6 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import {NativeBaseProvider} from "native-base";
-import {initializeApp} from "firebase/app";
 import firebase from "firebase/compat";
 import {LoginProvider} from "./context/LoginContext";
 

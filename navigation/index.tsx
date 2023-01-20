@@ -12,10 +12,8 @@ import { ColorSchemeName, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import ModalScreen from '../screens/ModalScreen';
-import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import ModalScreen from '../screens/Modals/ModalScreen';
+import NotFoundScreen from '../screens/NotFoundScreen';;
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import HomeScreen from "../screens/Checkout/HomeScreen";
@@ -26,16 +24,18 @@ import MoreOptionsScreen from "../screens/Checkout/MoreOptionsScreen";
 import DeliveryDetailsScreen from "../screens/Checkout/DeliveryDetailsScreen";
 import PaymentScreen from "../screens/Checkout/PaymentScreen";
 import OrderConfirmationScreen from "../screens/Checkout/OrderConfirmationScreen";
-import firebase from "firebase/compat";
-import {useContext, useEffect} from "react";
+import {useContext} from "react";
 import {LoginContext} from "../context/LoginContext";
 import SignupScreen from "../screens/Auth/SignupScreen";
+import SelectItemsToIronScreen from "../screens/Modals/SelectItemsToIronScreen";
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      {/*theme={DefaultTheme}>*/}
+
       <RootNavigator  />
     </NavigationContainer>
   );
@@ -50,9 +50,7 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
-    const { isLoggedIn, login, logout } = useContext(LoginContext);
-
-
+    const { isLoggedIn } = useContext(LoginContext);
   return (
     <Stack.Navigator>
         {!isLoggedIn &&
@@ -75,8 +73,13 @@ function RootNavigator() {
                 <Stack.Screen name="DeliveryDetails" component={DeliveryDetailsScreen} options={{ title: 'Delivery Details' }} />
                 <Stack.Screen name="Payment" component={PaymentScreen} options={{ title: 'Select Payment' }} />
                 <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} options={{ title: 'Order Confirmation' }} />
-                <Stack.Group screenOptions={{ presentation: 'modal' }}>
-                    <Stack.Screen name="Modal" component={ModalScreen} />
+                <Stack.Group
+                    screenOptions={{
+                        presentation: 'modal',
+                }}
+                >
+                    <Stack.Screen name="Modal" component={ModalScreen} options={{}} />
+                    <Stack.Screen name="SelectItemsToIron" component={SelectItemsToIronScreen} />
                 </Stack.Group>
             </>
         }
@@ -105,21 +108,7 @@ function BottomTabNavigator() {
         component={HomeScreen}
         options={({ navigation }: RootTabScreenProps<'Home'>) => ({
           title: 'Home',
-          tabBarIcon: ({ color }) => <AntDesign name="home" color={color} size={30}/>,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate('Modal')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
+          tabBarIcon: ({ color }) => <AntDesign name="home" color={color} size={30}/>
         })}
       />
       <BottomTab.Screen

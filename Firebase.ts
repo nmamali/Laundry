@@ -1,6 +1,7 @@
 import firebase from "firebase/compat";
 import 'firebase/auth'
 import 'firebase/firestore'
+import {getDatabase, onValue, ref, set} from "firebase/database";
 // @ts-ignore
 const Firebase = {
     // auth
@@ -24,6 +25,20 @@ const Firebase = {
             .collection('users')
             .doc(`${userData.uid}`)
             .set(userData)
+    },
+
+    // @ts-ignore
+    createOrder: async (data) => {
+        const db = getDatabase();
+        await set(ref(db, 'orders/' + data?.userId), data);
+    },
+
+    getOrders: async ()=>{
+        const db = getDatabase();
+        const ordersRef = ref(db, 'orders/');
+        onValue(ordersRef, (snapshot) => {
+            return snapshot.val()
+        });
     }
 }
 

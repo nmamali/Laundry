@@ -3,13 +3,32 @@
 import {StyleSheet, TouchableWithoutFeedback} from "react-native";
 import {View,Text} from "../../../components/Themed";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {useEffect, useState} from "react";
+import firebase from "firebase/compat";
+import database = firebase.database;
 
 interface Props {
 
 }
 
 export default function OrderStatus() {
+    const [orderStatus, setOrderStatus] = useState<string>();
 
+    useEffect(() => {
+        const onValueChange = database()
+            .ref(`/orders`)
+            .on('value', snapshot => {
+                setOrderStatus(snapshot.val()?.status)
+                alert(snapshot.val()?.status)
+                console.log('User data: ', snapshot.val());
+            });
+        // Stop listening for updates when no longer required
+        return () => database().ref(`/orders`).off('value', onValueChange);
+    }, []);
+
+    if(orderStatus===""){
+        return <></>
+    }
     return (
         <TouchableWithoutFeedback >
             <View style={styles.orderStatus}>

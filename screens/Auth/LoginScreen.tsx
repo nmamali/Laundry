@@ -40,8 +40,8 @@ export default function LoginScreen({ navigation }: RootTabScreenProps<'Login'>)
               source={require('../../assets/images/logo.png')}
           />
 
-            <AuthTextInput onChangeText={(text)=>{ setEmail(text)}} placeholder="Email" iconName={"email"} value={""}/>
-            <PasswordTextInput onChangeText={(text)=>{ setPassword(text)}} placeholder="Password" value={""}/>
+            <AuthTextInput onChangeText={(text)=>{ setEmail(text)}} placeholder="Email" iconName={"email"} value={email}/>
+            <PasswordTextInput onChangeText={(text)=>{ setPassword(text)}} placeholder="Password" value={password}/>
           <View style={{width:"75%", marginHorizontal:"10%", marginTop: -16}}>
               <Text style={{
                   alignSelf:"flex-end",

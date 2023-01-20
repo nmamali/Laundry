@@ -7,6 +7,8 @@ import Location from "./components/Location";
 import firebase from "firebase/compat";
 import {useContext, useEffect, useState} from "react";
 import {LoginContext} from "../../context/LoginContext";
+import { getDatabase, ref, onValue} from "firebase/database";
+import database = firebase.database;
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const currentUser = firebase.auth().currentUser

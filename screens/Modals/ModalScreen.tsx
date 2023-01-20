@@ -1,15 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet } from 'react-native';
-
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+import {StyleSheet } from 'react-native';
+import { Text, View } from '../../components/Themed';
 import * as Location from 'expo-location';
 import axios from 'axios';
-// navigator.geolocation = require('react-native-geolocation-service');
-
 import React, {useContext, useEffect, useState} from 'react';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import {LoginContext} from "../context/LoginContext";
+import {LoginContext} from "../../context/LoginContext";
 import {Button} from "native-base";
 import firebase from "firebase/compat";
 import {useRoute} from "@react-navigation/native";
@@ -23,7 +18,7 @@ export default function ModalScreen({navigation}) {
     const db = firebase.firestore();
     const currentUser = firebase.auth().currentUser
 
-    const { isLoggedIn, login, logout, updatePickupAddress } = useContext(LoginContext);
+    const {updatePickupAddress } = useContext(LoginContext);
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
 
@@ -128,8 +123,6 @@ export default function ModalScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
   title: {
     fontSize: 20,

@@ -3,13 +3,42 @@ import {Image, StyleSheet, TouchableOpacity} from 'react-native';
 import { Text, View } from '../../components/Themed';
 import { RootStackScreenProps } from '../../types';
 import {AntDesign, MaterialIcons} from "@expo/vector-icons";
-import React, {useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Button, Icon, Input, Radio} from "native-base";
 import Checkbox from 'expo-checkbox';
 import {Calendar} from "react-native-calendars";
+import {LoginContext} from "../../context/LoginContext";
+import {calculateOrderTotal} from "../../utils";
+import {TotalsFooter} from "./components/TotalsFooter";
 
 export default function MoreOptionsScreen({ navigation }: RootStackScreenProps<'MoreOptions'>) {
-    const [isChecked, setChecked] = useState(false);
+    const {orderObject, updateOrderItems } = useContext(LoginContext);
+
+    const [dryHeater, setDryHeater] = useState<boolean>(false);
+    const [useSoftener, setUseSoftener] = useState<boolean>(false);
+    // @ts-ignore
+    const [iron, setIron] = useState<boolean>(orderObject.orderItems.filter((x) => x.isIronNeeded).length > 0);
+    const [detergent, setDetergent] = useState<boolean>(false);
+    const [ironPrice, setIronPrice] = useState<number>(0);
+
+    const [additionalNotes, setAdditionalNotes] = useState<string>("");
+
+    useEffect(()=>{
+
+
+        let numOfItems = 0;
+        // @ts-ignore
+        orderObject.orderItems.forEach((elm)=>{
+            // @ts-ignore
+            if(elm.isIronNeeded){
+                // @ts-ignore
+                numOfItems+= elm.numOfItems
+            }
+        });
+        setIronPrice(numOfItems*10)
+
+
+    },[orderObject])
 
     return (
         <View style={styles.container}>
@@ -38,22 +67,44 @@ export default function MoreOptionsScreen({ navigation }: RootStackScreenProps<'
                     <Text lightColor={"#1D1E4E"} style={{fontSize: 20, fontWeight:"bold"}}>Other</Text>
                     <View >
                         <View style={styles.section}>
-                            <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} color={"#1D1E4E"}  onChange={(v)=>alert(v)}/>
+                            <Checkbox
+                                style={styles.checkbox}
+                                value={dryHeater}
+                                onValueChange={()=>setDryHeater(!dryHeater)}
+                                color={"#1D1E4E"}
+                                onChange={(v)=>setDryHeater(!dryHeater)}
+                            />
                             <Text style={styles.paragraph}> Dry Heater</Text>
-                        </View>
-                        <View style={styles.section}>
-                            <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} color={"#1D1E4E"}/>
-                            <Text style={styles.paragraph}>Use Softener</Text>
-                        </View>
-                        <View style={styles.section}>
-                            <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} color={"#1D1E4E"} />
-                            <Text style={styles.paragraph}>Iron my clothes</Text>
                         </View>
                         <View style={styles.section}>
                             <Checkbox
                                 style={styles.checkbox}
-                                value={isChecked}
-                                onValueChange={setChecked}
+                                value={useSoftener}
+                                onValueChange={()=>setUseSoftener(!useSoftener)}
+                                color={"#1D1E4E"
+                            }/>
+                            <Text style={styles.paragraph}>Use Softener</Text>
+                        </View>
+                        <TouchableOpacity style={styles.section} onPress={()=>{
+                            navigation.navigate("SelectItemsToIron");
+                            setIron(true);
+                        }}>
+                            <Checkbox
+                                style={styles.checkbox}
+                                value={iron}
+                                onValueChange={()=>setIron(!iron)}
+                                color={"#1D1E4E"}
+                                onChange={()=>{
+                                    navigation.navigate("SelectItemsToIron")
+                                }}
+                            />
+                            <Text style={styles.paragraph}>Iron my clothes</Text>
+                        </TouchableOpacity>
+                        <View style={styles.section}>
+                            <Checkbox
+                                style={styles.checkbox}
+                                value={detergent}
+                                onValueChange={()=>setDetergent(!detergent)}
                                 color={"#1D1E4E"}
                             />
                             <Text style={styles.paragraph}> Scented Detergent</Text>
@@ -73,6 +124,10 @@ export default function MoreOptionsScreen({ navigation }: RootStackScreenProps<'
                             base: "100%",
                             md: "23%",
                         }}
+
+                               onChangeText={(text)=>{
+                                   setAdditionalNotes(text);
+                               }}
                                paddingTop={6}
                                paddingBottom={6}
                                borderRadius={10}
@@ -85,22 +140,20 @@ export default function MoreOptionsScreen({ navigation }: RootStackScreenProps<'
                 </View>
             </View>
 
-            <View style={{backgroundColor:"#FFF", flexDirection:"row", paddingVertical:30, borderRadius:13, marginTop: 10}}>
-                <View style={{backgroundColor:"#FFF", marginLeft:15}}>
-                    <Text lightColor={"#1D1E4E"} style={{fontSize: 22, fontWeight:"bold", marginBottom:4}}>Grand Totals</Text>
-                    <View style={{marginTop:3}}>
-                        <Text lightColor={"#7C7F92"} style={{fontSize: 18, flexWrap: 'wrap', marginHorizontal:1}}>Delivery: R50 </Text>
-                        <Text lightColor={"#7C7F92"} style={{fontSize: 18, flexWrap: 'wrap', marginHorizontal:1}}>Items Selected: R100 </Text>
-                        <Text lightColor={"#7C7F92"} style={{fontSize: 18, flexWrap: 'wrap', marginHorizontal:1}}>Extras: R50 </Text>
-                        <Text lightColor={"#7C7F92"} style={{fontSize: 18, flexWrap: 'wrap', marginHorizontal:1}}>Grand Total: R200.00 </Text>
-
-                    </View>
-                </View>
-            </View>
-
+            <TotalsFooter/>
 
             <View style={{width:"100%", bottom:0,position: 'absolute', marginBottom:30, height:"7%"}}>
-                <Button style={{backgroundColor:"#5EBC9D", height:"100%",borderRadius:10}} onPress={()=> navigation.navigate("DeliveryDetails")}>
+                <Button style={{backgroundColor:"#5EBC9D", height:"100%",borderRadius:10}} onPress={()=> {
+                    let tempOrderObject = {...orderObject};
+
+                    tempOrderObject.extras = {
+                        additionalNote: additionalNotes,
+                        dryHeater: dryHeater,
+                        useSoftener: useSoftener,
+                    }
+                    updateOrderItems(tempOrderObject);
+                    navigation.navigate("DeliveryDetails")
+                }}>
                     <Text style={{color:"#FFF", fontSize:24, fontWeight:"bold"}}>Done</Text>
                 </Button>
             </View>

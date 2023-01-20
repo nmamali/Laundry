@@ -2,6 +2,8 @@ import React, { createContext, useState } from 'react';
 
 export const LoginContext = createContext({
     isLoggedIn: false,
+    orderObject: {},
+    updateOrderItems:  (value: any) => {},
     pickupAddress: "",
     login: (b: boolean) => {},
     updatePickupAddress: (address: string) => {},
@@ -13,6 +15,8 @@ export const LoginProvider = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [pickupAddress, setPickupAddress] = useState("");
 
+    const [orderObject, setOrderObject] = useState<any>();
+
     const login = (value:boolean) => {
         setIsLoggedIn(value);
     };
@@ -23,6 +27,9 @@ export const LoginProvider = ({ children }) => {
     const logout = () => {
         setIsLoggedIn(false);
     };
+    const updateOrderItems = (value:Array<any>)=>{
+        setOrderObject(value)
+    }
 
     return (
         <LoginContext.Provider
@@ -31,7 +38,9 @@ export const LoginProvider = ({ children }) => {
                 login,
                 logout,
                 pickupAddress,
-                updatePickupAddress
+                orderObject,
+                updateOrderItems,
+                updatePickupAddress,
             }}
         >
             {children}
